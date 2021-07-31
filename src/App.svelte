@@ -3,6 +3,7 @@
   import Welcome from "./screens/Welcome.svelte";
   import Game from "./screens/Game.svelte";
   import { select } from "./select.js";
+  import { loadImage } from "./utils";
 
   let state = "welcome"; // other alternatives 'playing';
   let celebritiesPromise;
@@ -37,6 +38,8 @@
 
   onMount(() => {
     celebritiesPromise = loadCelebrities();
+    loadImage("/icons/right.svg");
+    loadImage("/icons/wrong.svg");
   });
 </script>
 
