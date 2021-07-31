@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { fly, crossfade } from "svelte/transition";
+  import { fly, crossfade, scale } from "svelte/transition";
   import * as eases from "svelte/easing";
   import Card from "../components/Card.svelte";
   import { sleep, pick_random, loadImage } from "../utils.js";
@@ -63,7 +63,10 @@
 
 <div class="game-container">
   {#if done}
-    <div class="done">
+    <div
+      class="done"
+      in:scale={{ duration: 600, delay: 200, easing: eases.elasticOut }}
+    >
       <strong>{score} / {results.length}</strong>
       <p>{pickMessage(score / results.length)}</p>
       <button on:click={() => dispatch("restart")}>Back to main screen</button>
