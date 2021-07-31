@@ -1,11 +1,24 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import Card from "../components/Card.svelte";
-  import { sleep } from "../utils.js";
+  import { sleep, pick_random } from "../utils.js";
 
   export let selection;
   let i = 0;
   let lastResult;
   const results = new Array(selection.length);
+  let done = false;
+  const dispatch = createEventDispatcher();
+
+  $: score = results.filter((r) => r === "right").length;
+
+  const pickMessage = (p) => {
+    if (p < 0.5)
+      return pick_random(["Ouch!", "That wasnt very good", "Must try harder"]);
+    else if (p < 0.8) return pick_random(["Not bad!", "Keep practicing!"]);
+    else if (p < 1) return pick_random(["So close!", "Almost there!"]);
+    return pick_random(["You rock!", "Flawless victory!"]);
+  };
 
   const loadDetails = async (celeb) => {
     const res = await fetch(
@@ -26,7 +39,7 @@
     if (i < selection.length - 1) {
       i++;
     } else {
-      // TODO end the game
+      done = true;
     }
   };
 </script>
@@ -39,22 +52,41 @@
 </header>
 
 <div class="game-container">
-  {#await promises[i] then [a, b]}
-    <div class="game">
-      <div class="card-container">
-        <Card celeb={a} on:select={() => submit(a, b, 1)} />
-      </div>
-      <div>
-        <button class="same" on:click={() => submit(a, b, 0)}>same price</button
-        >
-      </div>
-      <div class="card-container">
-        <Card celeb={b} on:select={() => submit(a, b, -1)} />
-      </div>
+  {#if done}
+    <div class="done">
+      <strong>{score} / {results.length}</strong>
+      <p>{pickMessage(score / results.length)}</p>
+      <button on:click={() => dispatch("restart")}>Back to main screen</button>
     </div>
-  {:catch}
-    <p class="error">Oops, failed to laod data</p>
-  {/await}
+  {:else}
+    {#await promises[i] then [a, b]}
+      <div class="game">
+        <div class="card-container">
+          <Card
+            celeb={a}
+            showPrice={!!lastResult}
+            winner={a.price >= b.price}
+            on:select={() => submit(a, b, 1)}
+          />
+        </div>
+        <div>
+          <button class="same" on:click={() => submit(a, b, 0)}
+            >same price</button
+          >
+        </div>
+        <div class="card-container">
+          <Card
+            celeb={b}
+            showPrice={!!lastResult}
+            winner={a.price <= b.price}
+            on:select={() => submit(a, b, -1)}
+          />
+        </div>
+      </div>
+    {:catch}
+      <p class="error">Oops, failed to laod data</p>
+    {/await}
+  {/if}
 </div>
 
 {#if lastResult}
@@ -138,6 +170,23 @@
     height: 100%;
     left: 0;
     top: 0;
+  }
+
+  .done {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .done strong {
+    font-size: 6em;
+    font-weight: 700;
   }
 
   @media (min-width: 640px) {
