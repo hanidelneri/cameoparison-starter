@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { fly } from "svelte/transition";
+  import { fly, crossfade } from "svelte/transition";
   import * as eases from "svelte/easing";
   import Card from "../components/Card.svelte";
   import { sleep, pick_random, loadImage } from "../utils.js";
@@ -13,6 +13,11 @@
   const dispatch = createEventDispatcher();
   let ready = true;
   $: score = results.filter((r) => r === "right").length;
+
+  const [send, receive] = crossfade({
+    easing: eases.cubicOut,
+    duration: 300,
+  });
 
   const pickMessage = (p) => {
     if (p < 0.5)
@@ -40,6 +45,7 @@
     await sleep(1500);
     results[i] = lastResult;
     lastResult = null;
+    await sleep(500);
     if (i < selection.length - 1) {
       i++;
     } else {
@@ -101,6 +107,8 @@
 
 {#if lastResult}
   <img
+    in:fly={{ x: 100, duration: 300 }}
+    out:send={{ key: i }}
     class="giant-result"
     alt="{lastResult} answer"
     src="/icons/{lastResult}.svg"
@@ -111,10 +119,14 @@
   class="results"
   style="grid-template-columns: repeat({results.length}, 1fr);"
 >
-  {#each results as result}
+  {#each results as result, i}
     <span class="result">
       {#if result}
-        <img alt="{result} answer" src="/icons/{result}.svg" />
+        <img
+          alt="{result} answer"
+          src="/icons/{result}.svg"
+          in:receive={{ key: i }}
+        />
       {/if}
     </span>
   {/each}
