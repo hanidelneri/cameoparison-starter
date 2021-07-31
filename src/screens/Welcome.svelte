@@ -93,4 +93,24 @@
     color: var(--do-something);
     text-decoration: none;
   }
+
+  .categories {
+    width: 100%;
+    max-width: 26em;
+    margin: 0 auto;
+  }
+
+  button {
+    padding: 0.5em 1em;
+    display: block;
+    margin: 0 0 0.2em 0;
+  }
+
+  @media (min-width: 640px) {
+    button {
+      display: inline;
+      margin: 0 0.2em 0.4em 0.2em;
+      width: auto;
+    }
+  }
 </style>
