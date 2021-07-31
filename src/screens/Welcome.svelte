@@ -101,7 +101,7 @@
   }
 
   button {
-    padding: 0.5em 1em;
+    padding: 1em 2em;
     display: block;
     margin: 0 0 0.2em 0;
     width: 100%;
